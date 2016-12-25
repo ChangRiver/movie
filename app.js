@@ -8,7 +8,7 @@ var session = require('express-session');
 var mongoose = require('mongoose');
 var MongoStore = require('connect-mongo')(session);
 var config = require('config-lite');
-var routes = require('./routes');
+var routes = require('./routes/router');
 
 // var index = require('./routes/index');
 // var users = require('./routes/users');
@@ -27,7 +27,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views/pages'));
+app.set('views', path.join(__dirname, 'app/views/pages'));
 app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
