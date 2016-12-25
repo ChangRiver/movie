@@ -4,18 +4,20 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var _ = require('underscore');
+var session = require('express-session');
 var mongoose = require('mongoose');
+var MongoStore = require('connect-mongo')(session);
+var config = require('config-lite');
 var routes = require('./routes');
-var Movie = require('./models/movie');
 
 // var index = require('./routes/index');
 // var users = require('./routes/users');
 
 var app = express();
+var dbUrl = 'mongodb://localhost/imooc';
 app.locals.moment = require('moment');
 
-mongoose.connect('mongodb://localhost/imooc')
+mongoose.connect(dbUrl);
 
 // app.use(logger('dev'));
 
@@ -31,10 +33,22 @@ app.set('view engine', 'jade');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
-// app.use(cookieParser());
+app.use(cookieParser());
+app.use(session({
+  name: config.session.key,
+  secret: config.session.secret,
+  cookie: {
+    maxAge: config.session.maxAge
+  },
+  store: new MongoStore({
+    url: dbUrl,
+    collection: 'sessions'
+  })
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 // app.use('/', index);
 // app.use('/users', users);
+
 
 routes(app);
 

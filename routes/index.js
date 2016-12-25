@@ -1,17 +1,29 @@
-var express = require('express');
-var router = express.Router();
 var _ = require('underscore');
 var Movie = require('../models/movie');
 
 module.exports = function (app) {
+
+  app.use(function(req, res, next) {
+    var _user = req.session.user;
+
+    if(_user) {
+      app.locals.user = _user;
+    }
+
+    return next();
+  });
+
+
   app.get('/', function (req, res) {
+    // console.log('user in session ',req.session.user);
+
     Movie.fetch(function (err, movies) {
       if (err) {
         console.log(err)
       }
 
       res.render('index', {
-        title: 'imooc 首页',
+        title: 'Star Movie',
         movies: movies
       });
     });
@@ -48,8 +60,8 @@ module.exports = function (app) {
         year: movieObj.year,
         poster: movieObj.poster,
         summary: movieObj.summary,
-        flash: movieObj.flash,
-      })
+        flash: movieObj.flash
+      });
 
       _movie.save(function (err, movie) {
         if (err) {
@@ -59,12 +71,11 @@ module.exports = function (app) {
         res.redirect('/detail/' + movie._id)
       })
     }
-  })
+  });
 
 
   app.get('/detail/:id', function (req, res) {
     var id = req.params.id;
-    console.log('detail id ', id);
 
     if (id) {
       Movie.findById(id, function (err, movie) {
@@ -74,7 +85,7 @@ module.exports = function (app) {
         })
       })
     }
-  })
+  });
 
   app.get('/admin/update/:id', function (req, res) {
     var id = req.params.id;
@@ -87,7 +98,7 @@ module.exports = function (app) {
         })
       })
     }
-  })
+  });
 
   // list delete movie
   app.delete('/admin/list', function (req, res) {
@@ -102,13 +113,29 @@ module.exports = function (app) {
         }
       })
     }
-  })
+  });
+
+  // logout
+  app.get('/logout', function(req, res) {
+    delete req.session.user;
+    delete app.locals.user;
+    res.redirect('/');
+  });
 
   // 列表页
   app.use('/admin/list', require('./admin-list'));
 
   // 后台录入页
   app.use('/admin/movie', require('./admin-movie'));
+
+  // 注册
+  app.use('/user/signup', require('./signup'));
+
+  // 登录
+  app.use('/user/signin', require('./signin'));
+
+  // 用户列表页
+  app.use('/admin/userlist', require('./userlist'));
 
   // TODO
   // admin post movie
@@ -120,4 +147,4 @@ module.exports = function (app) {
   // admin update movie
   // app.use('/admin/update/:id', require('./update-movie'));
 
-}
+};
