@@ -1,6 +1,7 @@
 var Index = require('../app/controllers/index');
 var User = require('../app/controllers/user');
 var Movie = require('../app/controllers/Movie');
+var Comment = require('../app/controllers/Comment');
 
 // 中间件
 var signinRequired = require('../middleware/check').signinRequired;
@@ -26,6 +27,10 @@ module.exports = function (app) {
   app.delete('/admin/movie/list', signinRequired, adminRequired, Movie.del);
   app.get('/admin/movie/list', signinRequired, adminRequired, Movie.list);
   app.get('/admin/movie/new', signinRequired, adminRequired, Movie.new);
+
+
+  // Comment
+  app.post('/user/comment', signinRequired, Comment.save);
 
 
   // User
